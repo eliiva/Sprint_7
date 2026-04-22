@@ -1,17 +1,13 @@
-import requests
 import allure
 import pytest
-from helpers import delete_couriers, register_new_courier_and_return_login_password, get_courier_id
-from urls import base_url
+from helpers import delete_couriers, register_new_courier_and_return_courier_data, get_courier_id, send_login_request
 
 class TestLoginCourier:
-    courier_data = []
-    courier_id = ''
 
     @classmethod
     def setup_class(cls):
         with allure.step('Создаём тестового курьера'):
-            cls.courier_data = register_new_courier_and_return_login_password()
+            cls.courier_data = register_new_courier_and_return_courier_data()
             cls.courier_id = get_courier_id(cls.courier_data)
 
     @allure.title('Проверка успешного логина курьера')
@@ -22,7 +18,7 @@ class TestLoginCourier:
         "password": self.courier_data[1]
         }
 
-        response = requests.post(f'{base_url}/courier/login', json=payload)
+        response = send_login_request(payload)
         assert response.status_code == 200
         assert 'id' in response.json()
 
@@ -37,7 +33,7 @@ class TestLoginCourier:
         }
         payload.pop(missing_param)
         
-        response = requests.post(f'{base_url}/courier/login', json=payload)
+        response = send_login_request(payload)
         
         assert response.status_code == 400
         assert response.json()['message'] == 'Недостаточно данных для входа'
@@ -52,7 +48,7 @@ class TestLoginCourier:
         }
         payload[wrong_param] = "wrong_value"
         
-        response = requests.post(f'{base_url}/courier/login', json=payload)
+        response = send_login_request(payload)
         
         assert response.status_code == 404
         assert response.json()['message'] == 'Учетная запись не найдена'

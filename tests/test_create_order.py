@@ -1,12 +1,13 @@
-import requests
 import allure
 import pytest
-from helpers import cancel_order
+from helpers import cancel_order, send_create_order_request
 from data import create_order_colors, create_order_data
-from urls import base_url
 
 class TestCreateOrder:
-    tracks = []
+
+    @classmethod
+    def setup_class(cls):
+        cls.tracks = []
 
     @allure.title('Проверка успешного создания заказа, когда передан цвет')
     @allure.description('Отправляем запрос и проверяем статус и содержимое ответа')
@@ -15,7 +16,7 @@ class TestCreateOrder:
         payload = create_order_data.copy()
         payload['color'] = color
 
-        response = requests.post(f'{base_url}/orders', json=payload)
+        response = send_create_order_request(payload)
         response_body = response.json()
 
         self.tracks.append(response_body.get('track'))
@@ -28,7 +29,7 @@ class TestCreateOrder:
     def test_create_order_without_color(self):
         payload = create_order_data.copy()
 
-        response = requests.post(f'{base_url}/orders', json=payload)
+        response = send_create_order_request(payload)
         response_body = response.json()
 
         self.tracks.append(response_body.get('track'))

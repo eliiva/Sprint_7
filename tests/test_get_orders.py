@@ -1,10 +1,7 @@
-import requests
 import allure
-from helpers import create_order_and_return_track, cancel_order
-from urls import base_url
+from helpers import create_order_and_return_track, cancel_order, send_get_orders_list_request
 
 class TestGetOrders:
-    track = ''
 
     @classmethod
     def setup_class(cls):
@@ -14,7 +11,7 @@ class TestGetOrders:
     @allure.title('Проверка успешного получения списка заказов')
     @allure.description('Отправляем запрос и проверяем статус и содержимое ответа')
     def test_get_orders(self):
-        response = requests.get(f'{base_url}/orders')
+        response = send_get_orders_list_request()
 
         assert response.status_code == 200
         assert 'orders' in response.json()
